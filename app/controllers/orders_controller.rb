@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
 class OrdersController < ApiController
+  rescue_from Payment::Gateway::CardError, Payment::Gateway::PaymentError,
+              with: :payment_failed_error
   before_action :set_order, only: %i(show pay)
+  before_action :set_event
 
   def index
-    @orders = Order.all
+    @orders = @event.orders
   end
 
   def show
@@ -12,7 +15,17 @@ class OrdersController < ApiController
   end
 
   def pay
+    payment_token = params[:token]
+    tickets_count = @order.tickets_amount.to_i
+    
+    if @order.expiration_time < Time.now()
+      @order.destroy!
+      return after_expiration_time
+    end
 
+    TicketPayment.call(@order, payment_token, tickets_count)
+
+    render json: { success: 'Payment succeeded.' }
   end
 
 
@@ -22,6 +35,22 @@ class OrdersController < ApiController
     @order = Order.find(params[:id])
   rescue ActiveRecord::RecordNotFound => error
     not_found_error(error)
+  end
+
+  def set_event
+    @event = Event.find(params[:event_id])
+  end
+
+  def after_expiration_time
+    render json: { error: "The time limit of 15 minutes to pay for this reservation has passed. Order has been cancelled" }, status: :unprocessable_entity
+  end
+
+  def not_found_error(error)
+    render json: { error: error.message }, status: :not_found
+  end
+
+  def payment_failed_error(error)
+    render json: { error: error.message }, status: :payment_required
   end
 end
   

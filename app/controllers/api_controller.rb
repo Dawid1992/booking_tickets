@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class ApiController < ApplicationController
-  rescue_from TicketPayment::NotEnoughTicketsError, with: :conflict_error
   rescue_from Payment::Gateway::CardError, Payment::Gateway::PaymentError,
               with: :payment_failed_error
 

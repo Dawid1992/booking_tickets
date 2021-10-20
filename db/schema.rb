@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_10_20_174357) do
+ActiveRecord::Schema.define(version: 2021_10_20_221036) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -23,10 +23,11 @@ ActiveRecord::Schema.define(version: 2021_10_20_174357) do
     t.integer "tickets_total"
     t.integer "tickets_sold", default: 0
     t.decimal "tickets_price"
+    t.datetime "start_date", precision: 6
   end
 
   create_table "orders", force: :cascade do |t|
-    t.integer "amount", null: false
+    t.integer "tickets_amount", null: false
     t.integer "status", default: 0
     t.datetime "expiration_time", precision: 6, null: false
     t.datetime "created_at", precision: 6, null: false
@@ -36,12 +37,12 @@ ActiveRecord::Schema.define(version: 2021_10_20_174357) do
   end
 
   create_table "tickets", force: :cascade do |t|
-    t.bigint "event_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["event_id"], name: "index_tickets_on_event_id"
+    t.integer "order_id"
+    t.string "unique_key"
   end
 
   add_foreign_key "orders", "events", on_delete: :cascade
-  add_foreign_key "tickets", "events"
+  add_foreign_key "tickets", "orders"
 end

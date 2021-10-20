@@ -1,3 +1,3 @@
 json.order do
-    json.extract! @order, :amount, :expiration_time, :created_at
+    json.extract! @order, :tickets_amount, :expiration_time, :created_at, :event_id, :status, :order_value
   end

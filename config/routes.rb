@@ -3,15 +3,14 @@
 Rails.application.routes.draw do
   scope defaults: { format: 'json' } do
     resources :events do
-      member do
-        get "book/:amount", to: "events#book"
-      end
+      get "book/:amount", to: "events#book"
+        resources :orders do
+          member do
+            get "tickets"
+            get "pay/:token", to: "orders#pay"
+          end
     end
-    resources :orders do
-      member do
-        get "tickets"
-        post "pay/:token", to: "orders#pay"
-      end
+    
     end
   end
 end

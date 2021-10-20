@@ -1,13 +1,17 @@
 # frozen_string_literal: true
 
 class TicketPayment
-  NotEnoughTicketsError = Class.new(StandardError)
+  ClosedOrder = Class.new(StandardError)
 
-  def self.call(ticket, payment_token, tickets_count)
-    available_tickets = ticket.available
-    raise NotEnoughTicketsError, "Not enough tickets left." unless available_tickets >= tickets_count
-
-    Payment::Gateway.charge(amount: ticket.price, token: payment_token)
-    ticket.update(available: available_tickets - tickets_count)
+  def self.call(order, payment_token, tickets_count)
+    if order.status == 'open'
+      Payment::Gateway.charge(amount: order.order_value, token: payment_token)
+      order.update(status:1)
+      order.tickets_amount do
+        ticket = Ticket.create(order_id: order.id, unique_key: event.name.hash.to_s + SecureRandom.alphanumeric(3))
+      end
+    else
+      raise ClosedOrder, 'This order is close'
+    end
   end
 end

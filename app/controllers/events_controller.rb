@@ -12,10 +12,11 @@ class EventsController < ApiController
   end
 
   def book
-    @event = Event.find(params[:id])
-    if @event.time > Time.now()
-      order = Order.new(event_id: @event.id, amount: params[:amount])
+    @event = Event.find(params[:event_id])
+    if @event.start_date > Time.now()
+      order = Order.new(event_id: @event.id, tickets_amount: params[:amount])
       if order.save
+        ReserveService.call(params[:amount].to_i,@event)
         render json: order.to_json
       else
         raise StandardError, "Something is wrong with Yours order"
