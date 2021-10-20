@@ -11,6 +11,20 @@ class EventsController < ApiController
     render :show
   end
 
+  def book
+    @event = Event.find(params[:id])
+    if @event.time > Time.now()
+      order = Order.new(event_id: @event.id, amount: params[:amount])
+      if order.save
+        render json: order.to_json
+      else
+        raise StandardError, "Something is wrong with Yours order"
+      end
+    else
+      raise StandardError, "Event is already over"
+    end
+  end
+
   private
 
   def set_event
