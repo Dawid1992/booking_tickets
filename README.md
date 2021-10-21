@@ -1,4 +1,4 @@
-### Basic information:
+## Basic information:
 
 * Ruby 3.0.0
 * Rails 6.0.3
@@ -10,7 +10,7 @@ Tests:
 Appearance & clarity:
 * rubocop
 
-### Models
+## Models
 
 Base on two models - events and orders
 event has:
