@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 class EventsController < ApiController
-  before_action :set_event, only: :show
+  rescue_from ReserveService::NotEnoughTicketsError, with: :not_found_error
+  rescue_from ReserveService::EventHasBegunError, with: :event_start_error
+  before_action :set_event, only: %i(show book)
 
   def index
     @events = Event.all
@@ -12,18 +14,8 @@ class EventsController < ApiController
   end
 
   def book
-    @event = Event.find(params[:event_id])
-    if @event.start_date > Time.now()
-      order = Order.new(event_id: @event.id, tickets_amount: params[:amount])
-      if order.save
-        ReserveService.call(params[:amount].to_i,@event)
-        render json: order.to_json
-      else
-        raise StandardError, "Something is wrong with Yours order"
-      end
-    else
-      raise StandardError, "Event is already over"
-    end
+    ReserveService.call(params[:tickets_amount].to_i,@event)
+    render json: @event.to_json
   end
 
   private
@@ -32,5 +24,12 @@ class EventsController < ApiController
     @event = Event.find(params[:id])
   rescue ActiveRecord::RecordNotFound => error
     not_found_error(error)
+  end
+
+  def not_found_error(error)
+    render json: { error: error.message }, status: :not_found
+  end
+  def event_start_error(error)
+    render json: { error: error.message }, status: :unprocessable_entity
   end
 end

@@ -5,7 +5,7 @@ class Order < ApplicationRecord
   
     validates_presence_of :event_id, :tickets_amount
     validates :tickets_amount, numericality: { greater_than: 0 }
-    validate :ticket_validate
+    validates :order_value, numericality: { greater_than: 0 }
     before_save :add_expiration_time, :calculate_order_value
     after_destroy :return_unsold_tickets
 
@@ -28,21 +28,4 @@ class Order < ApplicationRecord
       event.tickets_sold -= self.tickets_amount
       event.save
     end
-
-    def ticket_validate
-      if self.tickets_amount
-        if self.event_id
-          event = Event.find(self.event_id)
-          available_tickets = event.tickets_total - event.tickets_sold
-          if self.tickets_amount > available_tickets
-            raise StandardError, "You cant buy more tickets than is available. Only #{available_tickets} left"
-            return false
-          end
-        else
-          raise StandardError, "Event doesnt exist"
-          return false
-        end
-      end
-    end
-  
   end

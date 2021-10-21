@@ -22,6 +22,7 @@ group :development, :test do
   gem "faker", "~> 2.14.0"
   gem "rspec-rails", "~> 4.0.1"
   gem 'dotenv-rails', '~> 2.7', '>= 2.7.6'
+  gem 'shoulda-matchers', '~> 5.0'
 end
 
 group :development do
