@@ -3,7 +3,7 @@
 class OrdersController < ApiController
   rescue_from Payment::Gateway::CardError, Payment::Gateway::PaymentError,
               with: :payment_failed_error
-  before_action :set_order, only: %i(show pay)
+  before_action :set_order, only: %i(show)
   before_action :set_event
 
   def index
@@ -15,6 +15,7 @@ class OrdersController < ApiController
   end
 
   def pay
+    @order = Order.find(params[:order_id])
     payment_token = params[:token]
     tickets_count = @order.tickets_amount.to_i
     
@@ -24,7 +25,6 @@ class OrdersController < ApiController
     end
 
     TicketPayment.call(@order, payment_token, tickets_count)
-
     render json: { success: 'Payment succeeded.' }
   end
 
@@ -39,6 +39,8 @@ class OrdersController < ApiController
 
   def set_event
     @event = Event.find(params[:event_id])
+  rescue ActiveRecord::RecordNotFound => error
+    not_found_error(error)
   end
 
   def after_expiration_time

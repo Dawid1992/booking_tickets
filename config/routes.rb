@@ -6,7 +6,6 @@ Rails.application.routes.draw do
       get "book/:amount", to: "events#book"
         resources :orders do
           get "pay/:token", to: "orders#pay"
-          resources :tickets
         end
       end
   end

@@ -2,7 +2,6 @@
 class Order < ApplicationRecord
     enum status: [ :open, :closed ]
     belongs_to :event
-    has_many :tickets
   
     validates_presence_of :event_id, :tickets_amount
     validates :tickets_amount, numericality: { greater_than: 0 }
@@ -23,12 +22,6 @@ class Order < ApplicationRecord
         self.order_value = order_value
       end
     end
-
-    # def frozen_ticket
-    #   event = Event.find(self.event_id)
-    #   event.tickets_sold += self.tickets_amount
-    #   event.save
-    # end
 
     def return_unsold_tickets
       event = Event.find(self.event_id)
