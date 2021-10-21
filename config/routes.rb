@@ -5,12 +5,9 @@ Rails.application.routes.draw do
     resources :events do
       get "book/:amount", to: "events#book"
         resources :orders do
-          member do
-            get "tickets"
-            get "pay/:token", to: "orders#pay"
-          end
-    end
-    
-    end
+          get "pay/:token", to: "orders#pay"
+          resources :tickets
+        end
+      end
   end
 end
